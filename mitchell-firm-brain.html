@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitchell Firm Brain</title>
+<style>
+  /* ---------- tokens ---------- */
+  :root{
+    --bg:#eceef2; --surface:#ffffff; --surface-2:#f5f6f8; --surface-3:#e9ebef;
+    --ink:#171a20; --muted:#5c6472; --line:#d7dbe2; --line-strong:#b9c0cb;
+    --accent:#5b3fd1; --accent-ink:#ffffff; --accent-soft:#ece7fb; --accent-line:#c9bdf2;
+    --good:#1e7f57; --good-soft:#dff3e9; --warn:#b8720f; --warn-soft:#fbeed6; --crit:#c23a2e; --crit-soft:#fbe3e0;
+    --user:#e9e6f7; --shadow:0 1px 2px rgba(23,26,32,.06),0 8px 24px rgba(23,26,32,.06);
+    --display:"Newsreader",Georgia,"Times New Roman",serif;
+    --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121419; --surface:#1a1d24; --surface-2:#22262e; --surface-3:#2a2f39;
+      --ink:#e7e9ee; --muted:#9aa2b0; --line:#2e333d; --line-strong:#454c59;
+      --accent:#b6a3f3; --accent-ink:#171226; --accent-soft:#2a2544; --accent-line:#4b4170;
+      --good:#4cc38a; --good-soft:#153327; --warn:#e0a24a; --warn-soft:#3a2b12; --crit:#ee6f63; --crit-soft:#3d1f1c;
+      --user:#262a3a; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121419; --surface:#1a1d24; --surface-2:#22262e; --surface-3:#2a2f39;
+    --ink:#e7e9ee; --muted:#9aa2b0; --line:#2e333d; --line-strong:#454c59;
+    --accent:#b6a3f3; --accent-ink:#171226; --accent-soft:#2a2544; --accent-line:#4b4170;
+    --good:#4cc38a; --good-soft:#153327; --warn:#e0a24a; --warn-soft:#3a2b12; --crit:#ee6f63; --crit-soft:#3d1f1c;
+    --user:#262a3a; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  button{font:inherit;color:inherit;cursor:pointer}
+  button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  h1,h2,h3{font-family:var(--display);font-weight:500;letter-spacing:-.01em;text-wrap:balance;margin:0}
+  h1{font-size:30px;line-height:1.1}
+  h2{font-size:22px;line-height:1.15}
+  h3{font-size:17px;line-height:1.25}
+  p{margin:0}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .mono{font-family:var(--mono);font-size:12.5px}
+  .num{font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+
+  /* ---------- shell ---------- */
+  .app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+  .nav{background:var(--surface);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;flex-direction:column;gap:4px;padding:0 6px}
+  .brand .firm{font-family:var(--display);font-size:21px;font-weight:500;line-height:1.1}
+  .brand .prod{font-size:13px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.02em;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);white-space:nowrap}
+  .chip.accent{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .chip.good{background:var(--good-soft);border-color:transparent;color:var(--good)}
+  .chip.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+  .chip.crit{background:var(--crit-soft);border-color:transparent;color:var(--crit)}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+  .navlist{display:flex;flex-direction:column;gap:2px}
+  .navbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 10px;border-radius:8px;border:1px solid transparent;background:transparent;font-weight:500;color:var(--muted)}
+  .navbtn:hover{background:var(--surface-2);color:var(--ink)}
+  .navbtn[aria-current="page"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+  .navbtn .k{font-family:var(--mono);font-size:11px;margin-left:auto;opacity:.6}
+  .navfoot{margin-top:auto;padding:0 6px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted)}
+  .navfoot strong{color:var(--ink);font-weight:600}
+
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--surface)}
+  .topbar .t{display:flex;flex-direction:column;gap:2px}
+  .topbar .status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .content{padding:24px 28px 60px;display:flex;flex-direction:column;gap:20px;max-width:1240px;width:100%}
+  .view{display:none;flex-direction:column;gap:20px}
+  .view.active{display:flex}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+  .card.flush{padding:0;overflow:hidden}
+  .card .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .stat{display:flex;flex-direction:column;gap:4px}
+  .stat .v{font-family:var(--display);font-size:32px;line-height:1;font-weight:500}
+  .stat .l{font-size:12.5px;color:var(--muted)}
+  .stat .d{font-size:12px;color:var(--good);font-weight:600}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);font-weight:600;font-size:13.5px;line-height:1.2}
+  .btn:hover{background:var(--surface-2)}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.sm{padding:5px 10px;font-size:12.5px}
+  .btn[disabled]{opacity:.55;cursor:default}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .tscroll{overflow-x:auto}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(8px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- ask ---------- */
+  .ask{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+  .prompts{display:flex;flex-direction:column;gap:6px}
+  .prompt{text-align:left;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;line-height:1.35;color:var(--ink)}
+  .prompt:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+  .prompt .via{display:block;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.03em}
+  .talk{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1px dashed var(--line-strong);background:var(--surface-2)}
+  .talk .mic{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;border:0;flex:none;position:relative}
+  .talk .mic.live::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent);animation:pulse 1.1s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+  .talk .lbl{display:flex;flex-direction:column;gap:2px;font-size:13px}
+  .talk .lbl strong{font-weight:600}
+  .convo{display:flex;flex-direction:column;min-height:560px;max-height:72vh}
+  .thread{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+  .msg{display:flex;flex-direction:column;gap:6px;max-width:92%}
+  .msg.user{align-self:flex-end;align-items:flex-end}
+  .msg .who{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;gap:8px;align-items:center}
+  .bubble{padding:12px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);line-height:1.5}
+  .msg.user .bubble{background:var(--user);border-color:transparent}
+  .bubble p+p{margin-top:8px}
+  .bubble ul{margin:8px 0 0;padding-left:18px}
+  .bubble li+li{margin-top:4px}
+  .cites{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .cite{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:3px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--accent-line);color:var(--accent)}
+  .cite .fresh{color:var(--muted);font-family:var(--body);font-size:11px}
+  .action{margin-top:10px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .action .ah{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .action .ah strong{font-weight:600}
+  .action .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+  .action .kv span:nth-child(odd){color:var(--muted)}
+  .action .af{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .action.done{border-color:var(--good);background:var(--good-soft)}
+  .composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}
+  .composer input{flex:1;padding:10px 12px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink);font:inherit}
+  .typing{display:inline-flex;gap:4px;align-items:center;padding:6px 2px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  .progress{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+  .progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .5s}
+
+  /* ---------- matters ---------- */
+  .matters{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}
+  .mlist{display:flex;flex-direction:column;gap:6px}
+  .mitem{text-align:left;padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:5px}
+  .mitem:hover{border-color:var(--accent-line)}
+  .mitem[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+  .mitem .n{font-family:var(--display);font-size:16.5px;font-weight:500;line-height:1.2}
+  .mitem .m{font-size:12.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+  .doclist{display:flex;flex-direction:column}
+  .doc{display:grid;grid-template-columns:22px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center;font-size:13.5px}
+  .doc:last-child{border-bottom:0}
+  .doc .ic{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:4px;text-align:center;padding:2px 0}
+  .doc .meta{font-size:12px;color:var(--muted)}
+  .timeline{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);margin-left:6px;padding-left:16px}
+  .tl{position:relative;padding:6px 0 12px;font-size:13.5px}
+  .tl::before{content:"";position:absolute;left:-23px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--accent)}
+  .tl .d{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .lock{display:grid;place-items:center;padding:40px 20px;text-align:center;gap:10px}
+
+  /* ---------- captures ---------- */
+  .steps{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:nowrap;white-space:nowrap}
+  .step{padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2)}
+  .step.on{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .step.ok{border-color:transparent;background:var(--good-soft);color:var(--good);font-weight:600}
+  .step.retry{border-color:transparent;background:var(--warn-soft);color:var(--warn);font-weight:600}
+  .shot{width:84px;height:54px;border-radius:5px;border:1px solid var(--line-strong);background:
+    linear-gradient(var(--surface-3) 0 0) 8px 8px/40px 5px no-repeat,
+    linear-gradient(var(--surface-3) 0 0) 8px 18px/60px 3px no-repeat,
+    linear-gradient(var(--surface-3) 0 0) 8px 25px/50px 3px no-repeat,
+    linear-gradient(var(--accent-soft) 0 0) 8px 36px/30px 8px no-repeat,var(--surface)}
+  textarea{width:100%;min-height:96px;padding:10px 12px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink);font-family:var(--mono);font-size:12.5px;resize:vertical}
+
+  /* ---------- intake ---------- */
+  .brief{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .kvl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13.5px}
+  .kvl dt{color:var(--muted);margin:0}
+  .kvl dd{margin:0}
+  .flag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+  .flag.warn{background:var(--warn-soft);color:var(--warn)}
+  .flag.good{background:var(--good-soft);color:var(--good)}
+  .flag.crit{background:var(--crit-soft);color:var(--crit)}
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
+  .check input{margin-top:3px}
+  .formrow{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+  .formrow span:nth-child(odd){color:var(--muted)}
+
+  /* ---------- reliability ---------- */
+  .health{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .hc{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);font-size:13px}
+  .hc .dot{flex:none}
+  .hc .dot.good{background:var(--good)} .hc .dot.warn{background:var(--warn)} .hc .dot.crit{background:var(--crit)}
+  .hc .hn{font-weight:600}
+  .hc .hs{color:var(--muted);font-size:12px}
+  .spark{width:100%;height:56px;display:block}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .cmp>div{padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+  .cmp>div:first-child{border-right:1px solid var(--line);background:var(--surface-2)}
+  .cmp .cl{display:flex;gap:10px;align-items:flex-start}
+  .cmp .cl b{flex:none;width:18px;text-align:center;font-weight:700}
+  .cmp .cl b.x{color:var(--crit)} .cmp .cl b.y{color:var(--good)}
+  .contract{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .ct{padding:12px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--accent-line);display:flex;flex-direction:column;gap:4px}
+  .ct strong{font-family:var(--display);font-size:20px;font-weight:500;color:var(--accent)}
+  .ct span{font-size:12.5px}
+  .st{font-size:12px;font-weight:600;padding:2px 7px;border-radius:5px;display:inline-block}
+  .st.ok{background:var(--good-soft);color:var(--good)} .st.retry{background:var(--warn-soft);color:var(--warn)} .st.fail{background:var(--crit-soft);color:var(--crit)}
+
+  /* ---------- sovereignty ---------- */
+  .map{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .zone{border:1px solid var(--line-strong);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;position:relative}
+  .zone.inside{border-color:var(--accent);border-width:2px;background:var(--surface)}
+  .zone .zt{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .zone ul{margin:0;padding-left:18px;font-size:13.5px}
+  .zone li+li{margin-top:5px}
+  .perm{display:grid;grid-template-columns:1fr repeat(4,auto);gap:6px 16px;font-size:13px;align-items:center}
+  .perm .h{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+  .perm .y{color:var(--good);font-weight:700;text-align:center} .perm .n{color:var(--muted);text-align:center}
+
+  /* ---------- plan ---------- */
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .ph{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface-2)}
+  .ph .w{font-family:var(--mono);font-size:11.5px;color:var(--accent);font-weight:500}
+  .ph h3{font-size:16px}
+  .ph ul{margin:0;padding-left:16px;font-size:13px}
+  .ph li+li{margin-top:4px}
+
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr}
+    .nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 16px}
+    .navlist{flex-direction:row;overflow-x:auto;flex:1 1 100%;gap:4px}
+    .navbtn{white-space:nowrap;padding:7px 10px}
+    .navbtn .k{display:none}
+    .navfoot{display:none}
+    .ask,.matters,.brief,.map,.cmp{grid-template-columns:1fr}
+    .cmp>div:first-child{border-right:0;border-bottom:1px solid var(--line)}
+    .g2,.g3,.g4,.health,.contract,.phases{grid-template-columns:1fr 1fr}
+    .content{padding:18px 16px 50px}
+    .topbar{padding:14px 16px}
+    .convo{min-height:480px;max-height:none}
+  }
+  @media (max-width:560px){ .g2,.g3,.g4,.health,.contract,.phases{grid-template-columns:1fr} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+<link rel="stylesheet" href="dashboard-theme.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="nav">
+    <div class="brand">
+      <div class="brandmark" aria-hidden="true">M</div>
+      <div class="firm">The Mitchell Firm</div>
+      <div class="prod">Company Brain</div>
+      <div class="demo-label"><span class="chip accent">Demo workspace · sample matters</span></div>
+    </div>
+    <nav class="navlist" aria-label="Sections">
+      <div class="navgroup">Workspace</div>
+      <button type="button" class="navbtn" data-view="dashboard" aria-current="page"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Today <span class="k">1</span></button>
+      <button type="button" class="navbtn" data-view="ask"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3a7 7 0 0 0-7 7v2a7 7 0 0 0 7 7h1l4 2v-3.1A7 7 0 0 0 19 13v-3a7 7 0 0 0-7-7Z"/><path d="M8.5 10.5h7M8.5 13.5h4"/></svg>Ask the brain <span class="k">2</span></button>
+      <button type="button" class="navbtn" data-view="matters"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h6l2 2h8v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7Z"/><path d="M4 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/></svg>Matters <span class="k">3</span></button>
+      <button type="button" class="navbtn" data-view="captures"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 15 3-3 3 3 2-2 3 3M8 9h.01"/></svg>Web capture <span class="k">4</span></button>
+      <button type="button" class="navbtn" data-view="intake"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>New intake <span class="k">5</span></button>
+      <div class="navgroup">Control</div>
+      <button type="button" class="navbtn" data-view="reliability"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-5"/></svg>Reliability <span class="k">6</span></button>
+      <button type="button" class="navbtn" data-view="sovereignty"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>Data &amp; access <span class="k">7</span></button>
+      <button type="button" class="navbtn" data-view="plan"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3v18M5 5h10l-1 4 4 3H5"/></svg>Cutover plan <span class="k">8</span></button>
+    </nav>
+    <div class="navfoot">
+      <div class="linkt"><strong>Built by Linkt</strong></div>
+      <div>Prepared for Jesse Mitchell III · Aug 28 review</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button type="button" class="global-command" data-go="ask" aria-label="Open Ask the brain">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <span>Search matters or ask the brain</span>
+      </button>
+      <div class="top-actions">
+        <span class="live-state"><span class="dot"></span> Preview ready</span>
+        <div class="profile">
+          <div class="avatar" aria-hidden="true">JM</div>
+          <div class="profile-copy"><strong>Jesse Mitchell III</strong><span>Managing attorney</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="pagehead">
+        <div class="pagehead-copy">
+          <h1 id="viewTitle">Today</h1>
+          <p class="muted" id="viewSub">Continuity first: what must be reviewed, what needs Jesse, and what the sample brain can do.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn" data-go="plan">Review cutover</button>
+          <button type="button" class="btn primary" data-go="ask">Ask the brain</button>
+        </div>
+      </div>
+
+      <!-- ================= DASHBOARD ================= -->
+      <section class="view active" id="view-dashboard">
+        <div class="metric-grid" role="group" aria-label="Today at a glance">
+          <article class="card metric-card primary-metric">
+            <div class="metric-top"><span>Continuity target</span><span class="metric-arrow" aria-hidden="true">↗</span></div>
+            <strong class="metric-value num">Oct 1</strong>
+            <span class="metric-note">Audit → stabilize → maintain</span>
+          </article>
+          <article class="card metric-card">
+            <div class="metric-top"><span>Audit inputs</span><span class="metric-arrow" aria-hidden="true">↗</span></div>
+            <strong class="metric-value num">1/4</strong>
+            <span class="metric-note">Plan prepared · access pending</span>
+          </article>
+          <article class="card metric-card">
+            <div class="metric-top"><span>Waiting for Jesse</span><span class="metric-arrow" aria-hidden="true">↗</span></div>
+            <strong class="metric-value num">3</strong>
+            <span class="metric-note">Nothing leaves without your yes</span>
+          </article>
+          <article class="card metric-card">
+            <div class="metric-top"><span>Pages captured</span><span class="metric-arrow" aria-hidden="true">↗</span></div>
+            <strong class="metric-value num">4</strong>
+            <span class="metric-note">One retry recovered</span>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="card analytics-card">
+            <div class="dashboard-card-head">
+              <div><h2>Continuity path</h2><p>Protect the current assistant before expanding it</p></div>
+              <span class="chip warn">Before Oct 1</span>
+            </div>
+            <ol class="continuity-path" aria-label="Continuity sequence">
+              <li class="continuity-stage current"><span>01</span><strong>Audit</strong><small>Map the build and handoff</small></li>
+              <li class="continuity-stage"><span>02</span><strong>Stabilize</strong><small>Fix the critical path</small></li>
+              <li class="continuity-stage"><span>03</span><strong>Maintain</strong><small>Make ownership durable</small></li>
+              <li class="continuity-stage"><span>04</span><strong>Extend</strong><small>Add what earns priority</small></li>
+            </ol>
+          </article>
+
+          <article class="card approval-card">
+            <div class="dashboard-card-head"><div><h2>Ready for your yes</h2><p>Drafts, never automatic sends</p></div><span class="chip">3</span></div>
+            <div class="dashboard-list">
+              <div class="dashboard-row"><span class="row-icon warn">!</span><span class="row-copy"><strong>Prater preservation letter</strong><span>Manufacturer, retailer, insurer</span></span><span class="row-state">Urgent</span></div>
+              <div class="dashboard-row"><span class="row-icon">E</span><span class="row-copy"><strong>Email Dr. Raman report</strong><span>Draft to Kris Givens</span></span><span class="row-state">Ready</span></div>
+              <div class="dashboard-row"><span class="row-icon">T</span><span class="row-copy"><strong>Callahan discovery task</strong><span>Atlanta office · Sep 12</span></span><span class="row-state">Ready</span></div>
+            </div>
+            <button type="button" class="btn" data-go="intake">Review approvals</button>
+          </article>
+
+          <article class="card matter-card">
+            <div class="dashboard-card-head"><div><h2>Matter pulse</h2><p>Three changes since yesterday</p></div><span class="chip good">Fresh</span></div>
+            <div class="dashboard-list">
+              <div class="dashboard-row"><span class="row-icon">H</span><span class="row-copy"><strong>Hargrove</strong><span>Boyd ELD log produced</span></span><span class="row-state">New</span></div>
+              <div class="dashboard-row"><span class="row-icon">W</span><span class="row-copy"><strong>Whitfield</strong><span>Raman report v2 received</span></span><span class="row-state">New</span></div>
+              <div class="dashboard-row"><span class="row-icon warn">P</span><span class="row-copy"><strong>Prater intake</strong><span>Conflicts clear · review draft</span></span><span class="row-state">11m</span></div>
+            </div>
+            <button type="button" class="btn" data-go="matters">Open matters</button>
+          </article>
+
+          <article class="card health-card">
+            <div class="dashboard-card-head"><div><h2>Continuity review</h2><p>What the audit must verify so Jesse never babysits it</p></div><span class="chip accent">To verify</span></div>
+            <div class="health-tiles">
+              <div class="health-tile"><span class="dot"></span><div><strong>CRM API</strong><span>Connectivity to verify</span></div></div>
+              <div class="health-tile"><span class="dot"></span><div><strong>Document index</strong><span>Corpus + refresh to measure</span></div></div>
+              <div class="health-tile"><span class="dot"></span><div><strong>Voice gateway</strong><span>Channels to inventory</span></div></div>
+              <div class="health-tile"><span class="dot"></span><div><strong>Microsoft 365</strong><span>Authorization to inspect</span></div></div>
+              <div class="health-tile"><span class="dot"></span><div><strong>Capture worker</strong><span>Recovery behavior to test</span></div></div>
+              <div class="health-tile"><span class="dot"></span><div><strong>Model gateway</strong><span>Retention + failover to confirm</span></div></div>
+            </div>
+          </article>
+
+          <article class="card cutover-card">
+            <div class="dashboard-card-head"><div><h2>Review readiness</h2><p>Technical review before scope or price</p></div><span class="chip warn">Before Oct 1</span></div>
+            <div class="readiness">
+              <div class="readiness-ring"><span>1/4<small>plan prepared</small></span></div>
+              <div class="readiness-copy"><strong>Four inputs unlock the audit</strong><span>Code and handoff notes</span><span>One hour with Josh</span><span>Three recent failures</span><span>Access model</span></div>
+            </div>
+            <button type="button" class="btn" data-go="plan">See the cutover plan</button>
+          </article>
+
+          <article class="card command-card">
+            <div class="command-orb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+            <div><h2>Ask the company brain</h2><p>Search the matter file, create a task, or leave a voice note from the road.</p></div>
+            <button type="button" class="btn" data-go="ask">Start a command</button>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= ASK ================= -->
+      <section class="view" id="view-ask">
+        <div class="ask">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="talk">
+              <button type="button" class="mic" id="micBtn" aria-label="Hold to talk" title="Hold to talk">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              </button>
+              <div class="lbl"><strong>Hold to talk</strong><span class="muted">Phone, Meta glasses, or desktop. Same brain.</span></div>
+            </div>
+            <div>
+              <div class="eyebrow" style="margin-bottom:8px">Try asking</div>
+              <div class="prompts" id="prompts"></div>
+            </div>
+            <p class="small muted">Prompts are scripted against the sample matters. In production the same questions run against your CRM and case files.</p>
+          </div>
+          <div class="card flush convo">
+            <div class="thread" id="thread"></div>
+            <form class="composer" id="composer">
+              <input id="q" type="text" placeholder="Ask about a matter, or tell it to do something…" autocomplete="off" aria-label="Ask">
+              <button class="btn primary" type="submit">Ask</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MATTERS ================= -->
+      <section class="view" id="view-matters">
+        <div class="matters">
+          <div class="mlist" id="mlist"></div>
+          <div id="mdetail" style="display:flex;flex-direction:column;gap:16px"></div>
+        </div>
+      </section>
+
+      <!-- ================= CAPTURES ================= -->
+      <section class="view" id="view-captures">
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h2>Capture pages into a case file</h2><span class="chip">Workflow to validate first</span></div>
+            <p class="small muted">In this preview, paste the links to see the intended workflow: capture each full page, hash the file, and save it to the matter with its URL and timestamp. The technical review determines what works today and what must change.</p>
+            <label class="eyebrow" for="capMatter">Matter</label>
+            <select id="capMatter" class="btn" style="justify-content:space-between"></select>
+            <label class="eyebrow" for="capUrls">Links</label>
+            <textarea id="capUrls">https://deltaridgefreight.example/safety
+https://deltaridgefreight.example/about/our-drivers
+https://deltaridgefreight.example/careers/driver-pay
+https://deltaridgefreight.example/news/2025-safety-award</textarea>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button type="button" class="btn primary" id="runCapture">Capture 4 pages</button>
+              <span class="small muted" id="capNote">Also works by voice: “capture these into the Hargrove file.”</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd"><h2>Reliability requirements to validate</h2></div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:6px">
+              <li><strong>Recoverable job state.</strong> Confirm what survives a restart today; the target is independent page state so one failure never loses completed work.</li>
+              <li><strong>Retry policy.</strong> Observe the real failure modes first. A proposed baseline is up to three attempts with backoff before escalation.</li>
+              <li><strong>Evidence package.</strong> Validate the required output: full-page files, SHA-256 hash, capture time, and source URL.</li>
+              <li><strong>Matter filing.</strong> Confirm the CRM write path, tags, and indexing delay before promising same-minute search.</li>
+              <li><strong>Visible failure handling.</strong> Agree who gets notified, what context they receive, and who owns recovery. No silent drops is the acceptance standard.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card flush">
+          <div class="tscroll">
+            <table id="capTable">
+              <thead><tr><th>Page</th><th>Matter</th><th>Status</th><th>Preview</th><th>Captured</th><th>Hash</th></tr></thead>
+              <tbody id="capBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= INTAKE ================= -->
+      <section class="view" id="view-intake">
+        <div class="card" style="gap:8px">
+          <div class="hd">
+            <div>
+              <div class="eyebrow">New intake · submitted 11 minutes ago via tmflegal.com</div>
+              <h2 style="margin-top:4px">Danielle Prater — space-heater fire, Hattiesburg, MS</h2>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="flag good">Conflicts: clear</span><span class="flag warn">Preservation letter needed</span></div>
+          </div>
+          <p class="small muted">In this preview, the form becomes a CRM briefing with three drafted actions before anyone opens it. Everything below remains a draft for attorney review.</p>
+        </div>
+        <div class="brief">
+          <div class="card">
+            <div class="hd"><h3>What she told us</h3><span class="chip">From the intake form</span></div>
+            <div class="formrow">
+              <span>Contact</span><span>Danielle Prater · (601) 555-0142 · Hattiesburg, MS</span>
+              <span>Incident</span><span>Bedroom fire, night of Aug 9, 2026. Portable space heater purchased new in Nov 2025 “started smoking then caught the curtains.”</span>
+              <span>Injuries</span><span>Second-degree burns to left forearm and hand; smoke inhalation, treated at Forrest General ER, discharged same night.</span>
+              <span>Property</span><span>Bedroom total loss; renters insurance claim opened with State Farm (claim # provided).</span>
+              <span>Product</span><span>Brand and model entered; receipt photo attached. Heater still in her possession.</span>
+              <span>Witnesses</span><span>Roommate (present); Hattiesburg FD responded — report requested.</span>
+              <span>Referral</span><span>Google search → website form</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Briefing</h3><span class="chip accent">Generated · 3 sources checked</span></div>
+            <dl class="kvl">
+              <dt>Theory</dt><dd>Product liability (design/manufacturing defect, failure to warn) against manufacturer and retailer; possible negligence claim. Mississippi Products Liability Act governs.</dd>
+              <dt>Limitations</dt><dd>3 years from injury under Miss. Code Ann. § 15-1-49 → <strong class="num">Aug 9, 2029</strong>. <span class="flag warn">Verify</span></dd>
+              <dt>Venue</dt><dd>Forrest County Circuit Court, or federal (diversity) if manufacturer is out of state.</dd>
+              <dt>Conflicts</dt><dd>No matches for Prater, roommate, manufacturer, or retailer across 212 contacts and 47 matters. <span class="flag good">Clear</span></dd>
+              <dt>Evidence at risk</dt><dd>The heater itself, the outlet and cord, ER records, FD report, State Farm adjuster photos. Insurer may dispose of debris after inspection.</dd>
+              <dt>Similar matters</dt><dd>Two prior product cases in the file with usable expert contacts (fire cause-and-origin, electrical engineering).</dd>
+            </dl>
+            <div class="cites">
+              <span class="cite">Intake form #2026-0412</span>
+              <span class="cite">CRM · conflicts index</span>
+              <span class="cite">Matter library · product liability</span>
+            </div>
+          </div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h3>Drafted and waiting for your yes</h3></div>
+            <div class="checks">
+              <label class="check"><input type="checkbox" checked><span><strong>Preservation letter</strong> to manufacturer, retailer, and State Farm — do not destroy the heater, cord, outlet, or debris.</span></label>
+              <label class="check"><input type="checkbox" checked><span><strong>Engagement letter + fee agreement</strong> to Ms. Prater for e-signature.</span></label>
+              <label class="check"><input type="checkbox" checked><span><strong>Records requests</strong> — Forrest General ER, Hattiesburg FD incident report.</span></label>
+              <label class="check"><input type="checkbox"><span><strong>Task for Sydney</strong> — call client within 24 hours, confirm the heater is bagged and stored, not plugged in.</span></label>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button type="button" class="btn primary" id="intakeApprove">Approve checked</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Why this matters at a small firm</h3></div>
+            <p class="small">You don’t have an intake department. Today a web form sits in an inbox until someone reads it; the good cases go to whoever calls back first. With the brain on the form, every lead gets a conflicts check, a limitations date, and a preservation letter draft inside minutes — and you get a text: <em>“New intake, product liability, Hattiesburg, conflicts clear. Briefing’s in the file.”</em></p>
+            <p class="small muted">This is the future extension discussed on the Aug 17 call. It comes after the current system is understood and stable; scope and effort follow the technical review.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= RELIABILITY ================= -->
+      <section class="view" id="view-reliability">
+        <div class="grid g4">
+          <div class="card stat"><span class="v num">&lt; 1s</span><span class="l">Acknowledgment target</span><span class="d">Know the command was heard</span></div>
+          <div class="card stat"><span class="v num">3×</span><span class="l">Proposed retry ceiling</span><span class="d">Validate against real failures</span></div>
+          <div class="card stat"><span class="v num">100%</span><span class="l">Command logging target</span><span class="d">Outcome visible and auditable</span></div>
+          <div class="card stat"><span class="v">Nightly</span><span class="l">Proposed replay cadence</span><span class="d">Set after the audit</span></div>
+        </div>
+        <div class="card">
+          <div class="hd"><h2>Draft reliability contract</h2><span class="chip">Validate and agree after review</span></div>
+          <div class="contract">
+            <div class="ct"><strong>&lt; 1 s</strong><span>Target: acknowledge each command promptly so Jesse knows it was heard.</span></div>
+            <div class="ct"><strong>3×</strong><span>Proposal: retry recoverable failures with backoff before escalating.</span></div>
+            <div class="ct"><strong>Text + page</strong><span>Proposal: tell Jesse what failed and route enough context to the accountable support path.</span></div>
+            <div class="ct"><strong>Nightly</strong><span>Proposal: replay representative commands often enough to catch drift before daily work.</span></div>
+          </div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h3>Inspection checklist</h3><span class="chip warn">Unknown until inspected</span></div>
+            <div class="health">
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">CRM API</div><div class="hs">Connectivity and last-write path</div></div></div>
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">Document index</div><div class="hs">Corpus, freshness, and recovery</div></div></div>
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">Voice gateway</div><div class="hs">Channels and command handoff</div></div></div>
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">Email (M365)</div><div class="hs">Authorization and approval path</div></div></div>
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">Capture worker</div><div class="hs">Capacity and restart behavior</div></div></div>
+              <div class="hc"><span class="dot warn"></span><div><div class="hn">Model gateway</div><div class="hs">Retention and failover terms</div></div></div>
+            </div>
+            <div>
+              <div class="eyebrow" style="margin:6px 0">Illustrative operating view · 30 days</div>
+              <svg class="spark" id="spark" viewBox="0 0 600 56" preserveAspectRatio="none" role="img" aria-label="Commands per day, last 30 days"></svg>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>What the technical review must establish</h3><span class="chip warn">Unknown until inspected</span></div>
+            <div class="cmp">
+              <div>
+                <div class="eyebrow">Verify in Josh’s build</div>
+                <div class="cl"><b class="x">?</b><span>Where command state lives and what happens during a restart</span></div>
+                <div class="cl"><b class="x">?</b><span>Which failures retry, alert, or currently disappear from view</span></div>
+                <div class="cl"><b class="x">?</b><span>What test coverage exists across the highest-value commands</span></div>
+                <div class="cl"><b class="x">?</b><span>Where accounts, credentials, deployments, and ownership sit</span></div>
+                <div class="cl"><b class="x">?</b><span>What continuity requires if Josh is unavailable after his move</span></div>
+              </div>
+              <div>
+                <div class="eyebrow">Stabilization standard</div>
+                <div class="cl"><b class="y">✓</b><span>Resume interrupted work safely instead of losing the command</span></div>
+                <div class="cl"><b class="y">✓</b><span>Log every outcome and alert the right person when recovery fails</span></div>
+                <div class="cl"><b class="y">✓</b><span>Replay Jesse’s real commands before changes reach daily work</span></div>
+                <div class="cl"><b class="y">✓</b><span>Put documentation, access, and operating knowledge in firm control</span></div>
+                <div class="cl"><b class="y">✓</b><span>Give Jesse one accountable support path after handoff</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card flush">
+          <div style="padding:14px 18px 0;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+            <h3>Command log</h3>
+            <span class="small muted">Live — anything you do in this demo lands here</span>
+          </div>
+          <div class="tscroll" style="margin-top:10px">
+            <table>
+              <thead><tr><th>Time</th><th>Channel</th><th>Command</th><th>Result</th><th>Took</th></tr></thead>
+              <tbody id="logBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SOVEREIGNTY ================= -->
+      <section class="view" id="view-sovereignty">
+        <div class="card">
+          <div class="hd"><h2>Put the firm in control of its data and access</h2><span class="chip accent">Target operating model</span></div>
+          <p class="small">The target operating model keeps the firm in control of its case files, CRM, memory, accounts, and keys. The technical review determines today’s actual topology; the stabilization scope then closes any ownership, retention, or access gaps it finds.</p>
+        </div>
+        <div class="map">
+          <div class="zone inside">
+            <div class="zt"><h3>Inside the privilege boundary</h3><span class="chip good"><span class="dot"></span> Firm-controlled target</span></div>
+            <ul>
+              <li><strong>CRM + case files</strong> — existing data and runtime mapped first, with backup and restore requirements documented before changes.</li>
+              <li><strong>Document index</strong> — target outcome: the approved file types are searchable with page-level citations and a measurable refresh interval.</li>
+              <li><strong>The brain’s memory</strong> — target outcome: voice notes and working preferences remain portable and under firm control.</li>
+              <li><strong>Audit log</strong> — target outcome: who asked what, which documents were read, and what was approved for sending can be exported.</li>
+              <li><strong>Keys &amp; secrets</strong> — inventoried during review, then moved into firm-controlled storage where needed.</li>
+            </ul>
+          </div>
+          <div class="zone">
+            <div class="zt"><h3>External services to constrain</h3><span class="chip">Requirements to confirm</span></div>
+            <ul>
+              <li><strong>Language models</strong> — target contract: send only the passage needed, disable retention and training where supported, and keep providers replaceable.</li>
+              <li><strong>Email</strong> — target workflow: use the firm’s Microsoft 365 authorization and log approved sends to the matter.</li>
+              <li><strong>Web capture</strong> — target boundary: fetch only public pages without disclosing matter context in the request.</li>
+              <li><strong>Supio</strong> — stays exactly where it is for document review. The brain can point to it, never replaces it.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h3>Permission-aware target</h3><span class="chip">Access model to verify</span></div>
+            <div class="perm">
+              <div class="h">Matter</div><div class="h">Jesse</div><div class="h">Kris</div><div class="h">Sydney</div><div class="h">Atlanta</div>
+              <div>Hargrove v. Delta Ridge</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div><div class="n">—</div>
+              <div>Estate of Whitfield</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div><div class="n">—</div>
+              <div>Callahan v. Peachtree</div><div class="y">✓</div><div class="n">—</div><div class="n">—</div><div class="y">✓</div>
+              <div>Sealed qui tam</div><div class="y">✓</div><div class="y">✓</div><div class="n">—</div><div class="n">—</div>
+            </div>
+            <p class="small muted">This sample shows the intended result: deny unauthorized questions without leaking the restricted matter’s name. The technical review must verify the source of truth for access.</p>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Audit trail (sample)</h3></div>
+            <div class="tscroll">
+              <table>
+                <thead><tr><th>When</th><th>Who</th><th>Read</th><th>Sent</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono num">12:31</td><td>Jesse (voice)</td><td>UMMC MAR p.14; Discharge summary</td><td>—</td></tr>
+                  <tr><td class="mono num">12:34</td><td>Jesse (voice)</td><td>ELD log 03/11; Dispatch texts</td><td>—</td></tr>
+                  <tr><td class="mono num">12:36</td><td>Jesse (text)</td><td>Raman expert report</td><td>Email → Kris Givens</td></tr>
+                  <tr><td class="mono num">12:41</td><td>Intake form</td><td>Conflicts index; matter library</td><td>Text → Jesse</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PLAN ================= -->
+      <section class="view" id="view-plan">
+        <div class="card">
+          <div class="hd"><h2>Continuity before Josh’s move</h2><span class="chip warn">Target · before Oct 1</span></div>
+          <p class="small">The first objective is continuity, not feature expansion: understand the current system, agree on what “reliable” means, and remove single-person operating risk. Timing, scope, and price are set only after the technical review.</p>
+        </div>
+        <div class="phases">
+          <div class="ph"><span class="w">Step 1 · Audit</span><h3>Read the build</h3><ul><li>Walk Josh’s handoff files and code with him</li><li>Map integrations, runtime, data, accounts, and access</li><li>Collect the commands that fail most often</li><li>Document risks, scope options, and an informed estimate</li></ul></div>
+          <div class="ph"><span class="w">Step 2 · Stabilize</span><h3>Fix the critical path</h3><ul><li>Prioritize the failures Jesse feels in daily litigation</li><li>Add appropriate recovery, logging, and alerts</li><li>Replay real commands before shipping changes</li><li>Start with web capture if the review confirms it as the top issue</li></ul></div>
+          <div class="ph"><span class="w">Step 3 · Maintain</span><h3>Keep it dependable</h3><ul><li>Run the system with agreed reliability evidence visible</li><li>Record the handoff and operating procedures</li><li>Place ownership and support responsibilities in writing</li><li>Give Jesse one accountable support path</li></ul></div>
+          <div class="ph"><span class="w">Step 4 · Extend</span><h3>Add what earns priority</h3><ul><li>Evaluate intake auto-briefing after stabilization</li><li>Rank “what’s due this week” and other matter workflows</li><li>Extend voice capture from Jesse’s actual habits</li><li>Scope each addition against measurable value</li></ul></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h3>What we’ll ask for on Friday</h3></div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:6px">
+              <li>Read access to the code and Josh’s handoff notes (no keys needed yet; NDA first if you prefer)</li>
+              <li>A date for a one-hour handoff call with Josh before he moves</li>
+              <li>Three recent examples of the assistant failing, in your words</li>
+              <li>Who else at the firm should be able to talk to the brain</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Options set after technical review</h3></div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:6px">
+              <li><strong>The review produces the options</strong> — current-state map, risk ranking, success criteria, timing, and price.</li>
+              <li><strong>A bounded stabilization project</strong> may follow if the critical path is clear; a proof of value is an option only if it is the better fit.</li>
+              <li><strong>Ongoing maintenance</strong> is proposed after the support load, ownership gaps, and operating cadence are known.</li>
+              <li><strong>Firm control</strong> — ownership, access, handoff, and exit terms are documented in any proposal.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  /* ---------------- data: matters (fictional) ---------------- */
+  const MATTERS=[
+    {id:'hargrove',name:'Hargrove v. Delta Ridge Freight, LLC',type:'Truck wreck · Personal injury',court:'Warren County Circuit Court, MS',stage:'Discovery · trial set Nov 16, 2026',lead:'Jesse Mitchell III',office:'Ridgeland',
+      summary:'Marcus Hargrove, 44, rear-ended by a Delta Ridge tractor-trailer on I-20 near Vicksburg at 9:52 PM on Mar 11, 2026. Driver Terry Boyd was in hour 11 of his shift. Cervical fusion at UMMC; out of work since.',
+      docs:[['PDF','Mississippi Highway Patrol crash report','MHP-26-04471 · 6 pp'],['PDF','ELD hours-of-service log, T. Boyd, Mar 9–12','Delta Ridge production · 14 pp'],['IMG','Dispatch text thread, Mar 11 (screenshots)','Delta Ridge production · 9 pp'],['PDF','UMMC medical records incl. Medication Administration Record','412 pp'],['DOC','Deposition of Terry Boyd, Jul 22, 2026','Transcript · 188 pp'],['WEB','Delta Ridge website captures (4)','Captured Aug 28, 2026'],['DOC','Trial prep · closing notes','Voice memos, 3 entries']],
+      timeline:[['Mar 11, 2026','Collision, I-20 MM 3, Vicksburg'],['Mar 12–13, 2026','UMMC admission; discharged Mar 13'],['May 4, 2026','Complaint filed'],['Jul 22, 2026','Boyd deposition'],['Sep 12, 2026','Discovery cutoff'],['Nov 16, 2026','Trial']]},
+    {id:'whitfield',name:'Estate of Whitfield v. Magnolia Regional Medical Center',type:'Medical malpractice · Wrongful death',court:'Hinds County Circuit Court, MS',stage:'Pre-suit notice served · expert review',lead:'Jesse Mitchell III · Kris Givens',office:'Ridgeland',
+      summary:'Loretta Whitfield, 67, presented to the ED with fever and confusion on Jan 3, 2026. Lactate of 4.1 resulted at 2:18 AM; antibiotics not started until 9:40 AM. Died of septic shock Jan 5.',
+      docs:[['PDF','ED nursing notes and vitals, Jan 3–5','Magnolia Regional · 96 pp'],['PDF','Lab results incl. lactate timeline','22 pp'],['PDF','Expert report — Dr. Priya Raman (EM)','Draft v2 · 31 pp'],['DOC','Pre-suit notice of claim (§ 15-1-36)','Served Jul 30, 2026'],['PDF','Death certificate and autopsy','12 pp']],
+      timeline:[['Jan 3, 2026','ED presentation, 1:07 AM'],['Jan 5, 2026','Death'],['Jul 30, 2026','60-day pre-suit notice served'],['Sep 28, 2026','Earliest filing date'],['Oct 15, 2026','Raman report final due']]},
+    {id:'callahan',name:'Callahan v. Peachtree Storage Partners',type:'Premises liability',court:'State Court of Fulton County, GA',stage:'Discovery',lead:'Atlanta office',office:'Atlanta',
+      summary:'Renee Callahan slipped on standing water inside a climate-controlled storage corridor on Nov 20, 2025. Fractured wrist and torn labrum. Facility had three prior leak work orders on the same HVAC unit.',
+      docs:[['PDF','Incident report, Nov 20, 2025','3 pp'],['IMG','Surveillance stills index (11)','Produced Jun 2026'],['PDF','HVAC maintenance work orders, 2024–2025','38 pp'],['DOC','Defendant’s first interrogatories','Responses due Sep 12, 2026']],
+      timeline:[['Nov 20, 2025','Fall'],['Apr 2, 2026','Complaint filed'],['Sep 12, 2026','Discovery responses due'],['Nov 20, 2027','Limitations (O.C.G.A. § 9-3-33)']]},
+    {id:'sealed',name:'Sealed matter — qui tam',type:'Whistleblower · Securities',court:'Under seal',stage:'Restricted',lead:'Jesse Mitchell III · Kris Givens',office:'Ridgeland',locked:true}
+  ];
+
+  /* ---------------- data: scripted answers ---------------- */
+  const cite=(doc,loc,fresh)=>({doc,loc,fresh});
+  const SCRIPTS=[
+    {key:'ketorolac',via:'Voice · from the car',prompt:'When did Dr. Okafor give Marcus Hargrove the last dose of ketorolac?',
+      match:/ketorolac|okafor|last dose|toradol/i,
+      html:'<p>Last dose was <strong>March 12, 2026 at 9:40 PM</strong> — ketorolac 30 mg IV, ordered by Dr. A. Okafor and administered by RN K. Pruitt. He was discharged the next morning at 10:15 AM with a note to avoid NSAIDs for two weeks post-fusion.</p><p>That is the fourth and final dose over 36 hours. Nothing else in the MAR after 9:40 PM.</p>',
+      cites:[cite('UMMC Medication Administration Record','p. 14, row 27','synced 12:46'),cite('UMMC Discharge summary','p. 2','synced 12:46')],
+      log:['Voice · Android','Find last ketorolac dose — Hargrove','ok','1.9s']},
+    {key:'hours',via:'Voice · from the car',prompt:'Pull up everything on the Delta Ridge driver’s hours the day of the wreck.',
+      match:/hours|driver|boyd|eld|dispatch/i,
+      html:'<p>Terry Boyd logged on at <strong>10:55 AM</strong> on March 11. The collision was at <strong>9:52 PM</strong> — hour 10:57 of driving, hour 11 on duty. The ELD shows one 30-minute break at 3:10 PM and no other off-duty time.</p><ul><li>Dispatch texted him at <strong>9:40 PM</strong>: “can u grab the Jackson load after this one.” He replied “ya” at 9:41.</li><li>In deposition he said he “felt fine” but agreed he had not taken the second break policy required (Boyd Dep. 112:4–113:19).</li><li>Delta Ridge’s website says drivers are “never pushed past safe hours” — captured today.</li></ul><p>Want me to add this as a section in the Boyd cross outline?</p>',
+      cites:[cite('ELD log, T. Boyd','Mar 11, rows 1–19','produced Jun 2026'),cite('Dispatch texts','p. 6','produced Jun 2026'),cite('Boyd deposition','112:4–113:19','Jul 22, 2026'),cite('Web capture · /safety','Aug 28, 2026','today')],
+      log:['Voice · Android','Summarize Boyd hours-of-service — Hargrove','ok','2.6s']},
+    {key:'capture',via:'Voice · from the car',prompt:'Capture these four pages from Delta Ridge’s website into the Hargrove file.',
+      match:/capture|screenshot|website|pages|links|urls/i,
+      html:'<p>Got it. Four links queued for the <strong>Hargrove</strong> file. I’ll screenshot each one full-length, hash it, and file it under Web captures.</p>',
+      progress:true,
+      after:'<p>Done — <strong>4 of 4 saved</strong>. Page 3 (driver-pay) timed out once and succeeded on retry. Each capture has the URL and timestamp in the footer and a SHA-256 hash in the file record. They’re searchable now — ask about the driver’s hours and the /safety page shows up as a source.</p>',
+      afterCites:[cite('Hargrove · Web captures','4 files','just now')],
+      log:['Voice · Android','Capture 4 URLs → Hargrove file','ok · 1 retry','38s']},
+    {key:'email',via:'Text · desktop',prompt:'Email Kris the Whitfield expert report and ask her to flag the lactate timeline by Thursday.',
+      match:/email|kris|raman|expert report|lactate/i,
+      html:'<p>Drafted. Attaching the current draft of Dr. Raman’s report (v2, 31 pages) from the Whitfield file. Review before it goes.</p>',
+      action:{title:'Email · to Kris Givens',kv:[['To','kgivens@tmflegal.com'],['Subject','Whitfield — Raman report v2, lactate timeline'],['Attachment','Raman expert report v2.pdf (31 pp)'],['Body','Kris — attached is Dr. Raman’s v2. Can you flag anything on the lactate timeline (2:18 AM result → 9:40 AM antibiotics) that she should tighten before final? Need it by Thursday. — Jesse']],confirm:'Send as Jesse',done:'Sent · logged to Whitfield file',extra:'Task created for Kris · due Thu Sep 3'},
+      cites:[cite('Whitfield · Raman expert report','v2, 31 pp','Aug 20, 2026')],
+      log:['Text · desktop','Draft email to K. Givens + attach Raman v2','ok','2.2s']},
+    {key:'task',via:'Voice · Meta glasses',prompt:'Create a task: file the Callahan discovery responses by September 12.',
+      match:/task|callahan|discovery|september 12|sept/i,
+      html:'<p>Task created in the CRM on the <strong>Callahan</strong> matter and assigned to the Atlanta office, since they carry that file. Reminder to you three days before.</p>',
+      action:{title:'Task · Callahan v. Peachtree Storage Partners',kv:[['Task','File responses to defendant’s first interrogatories'],['Owner','Atlanta office'],['Due','Fri Sep 12, 2026 (discovery cutoff)'],['Reminder','Tue Sep 9 → Jesse, Atlanta']],confirm:'Looks right',done:'Saved · CRM task #4471',extra:''},
+      cites:[cite('CRM · Callahan','deadlines','synced 12:47')],
+      log:['Voice · Meta glasses','Create task — Callahan discovery responses','ok','1.4s']},
+    {key:'due',via:'Text · desktop',prompt:'What’s due this week across everything?',
+      match:/due|this week|deadline|calendar/i,
+      html:'<p>Four things between now and Friday, Sep 4:</p><ul><li><strong>Mon Aug 31</strong> — Hargrove: serve second request for production (Delta Ridge maintenance records). Draft is in the file, unsigned.</li><li><strong>Wed Sep 2</strong> — Whitfield: Dr. Raman call, 2:00 PM, re: v2 comments.</li><li><strong>Thu Sep 3</strong> — Whitfield: Kris’s lactate-timeline flags due (task you just created).</li><li><strong>Fri Sep 4</strong> — Callahan: Atlanta to send you draft interrogatory responses for review (a week before the Sep 12 cutoff).</li></ul><p>Nothing due on the sealed matter this week.</p>',
+      cites:[cite('CRM · deadlines','all matters','synced 12:47'),cite('Calendar','Aug 31 – Sep 4','synced 12:40')],
+      log:['Text · desktop','Deadlines this week — all matters','ok','1.7s']},
+    {key:'intake',via:'Text · desktop',prompt:'Who’s the new intake?',
+      match:/intake|new client|prater|lead/i,
+      html:'<p><strong>Danielle Prater</strong>, Hattiesburg — space-heater fire on Aug 9, second-degree burns, heater still in her possession. Product liability, conflicts clear, limitations Aug 9, 2029 (verify). Preservation letter, engagement letter, and records requests are drafted and waiting for your yes in the <a href="#" data-go="intake">New intake</a> tab.</p>',
+      cites:[cite('Intake form #2026-0412','submitted 12:37','11 min ago'),cite('CRM · conflicts index','212 contacts','synced 12:47')],
+      log:['Text · desktop','Summarize new intake — Prater','ok','1.3s']},
+    {key:'sealed',via:'Text · desktop',prompt:'Summarize the sealed qui tam matter.',
+      match:/sealed|qui tam|whistleblower|securities/i,
+      html:'<p>That matter is restricted to Jesse and Kris. You’re signed in as <strong>Jesse</strong>, so here’s the one-line status: relator interview complete, disclosure statement drafted, government’s intervention decision due Nov 2026.</p><p class="small muted">If Sydney or the Atlanta office asked this, the brain would say the matter exists but they don’t have access — and would not repeat the name.</p>',
+      cites:[cite('Sealed · status note','restricted','Aug 21, 2026')],
+      log:['Text · desktop','Status — sealed matter (permission check: Jesse ✓)','ok','1.1s']}
+  ];
+  const VOICE={transcript:'Note for the Hargrove closing: eleven hours on the ELD, and dispatch still texted him at 9:40 asking for one more load. That’s the whole case. Put it at the top of the closing notes and remind me to look at it Monday.',
+    html:'<p>Saved to <strong>Hargrove → Trial prep → Closing notes</strong> as the top entry, timestamped and tagged “closing.” Reminder set for <strong>Mon Aug 31, 8:00 AM</strong>.</p><p>For what it’s worth, the numbers check: the ELD shows hour 11 and the dispatch text is 9:40 PM, twelve minutes before impact.</p>',
+    cites:[cite('Hargrove · Closing notes','entry 4','just now'),cite('ELD log, T. Boyd','Mar 11','produced Jun 2026'),cite('Dispatch texts','p. 6','produced Jun 2026')],
+    log:['Voice · Meta glasses','Voice memo → closing notes + reminder — Hargrove','ok','4.8s']};
+
+  /* ---------------- nav ---------------- */
+  const TITLES={dashboard:['Today','Continuity first: what must be reviewed, what needs Jesse, and what the sample brain can do.'],ask:['Ask the brain','Voice or text. Every answer cites the document it came from.'],matters:['Matters','What the brain can see, and how it is organized.'],captures:['Web capture','Preview the evidence workflow; validate today’s implementation during review.'],intake:['New intake','A web form became a briefing before anyone read it.'],reliability:['Reliability','The service standard to validate and enforce after the technical review.'],sovereignty:['Data & access','A firm-controlled target model, finalized after the current system is mapped.'],plan:['Cutover plan','Audit → stabilize → maintain → extend. Scope and price follow the review.']};
+  function go(view){
+    $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));
+    $$('.navbtn').forEach(b=>{ if(b.dataset.view===view) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+    $('#viewTitle').textContent=TITLES[view][0]; $('#viewSub').textContent=TITLES[view][1];
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  }
+  $$('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+  document.addEventListener('keydown',e=>{ if(e.target.matches('input,textarea')) return; const map={1:'dashboard',2:'ask',3:'matters',4:'captures',5:'intake',6:'reliability',7:'sovereignty',8:'plan'}; if(map[e.key]) go(map[e.key]); });
+  document.addEventListener('click',e=>{ const a=e.target.closest('[data-go]'); if(a){ e.preventDefault(); go(a.dataset.go);} });
+
+  /* ---------------- toast + log ---------------- */
+  let toastT; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+  const LOG=[['12:47:12','Intake form','Conflicts check + briefing — Prater','ok','6.1s'],['12:41:03','Voice · Android','Find Whitfield lactate result time','ok','1.8s'],['12:34:50','Text · desktop','Draft RFP #2 — Hargrove maintenance records','ok','3.4s'],['12:22:17','Capture worker','Nightly re-check: 4 captured pages unchanged','ok','21s'],['11:58:41','Voice · Meta glasses','Voice memo → Whitfield notes','ok','4.2s'],['11:40:09','Text · desktop','Email → Sydney: Callahan surveillance index','ok','2.0s'],['09:12:33','Voice · Android','Create task — call Dr. Raman Wed 2pm','ok · 1 retry','5.9s'],['03:00:00','Nightly replay','48 recorded commands replayed','48 / 48 pass','6m 12s']];
+  function renderLog(){ $('#logBody').innerHTML=LOG.map(r=>{ const cls=/retry/.test(r[3])?'retry':/fail/.test(r[3])?'fail':'ok'; return `<tr><td class="mono num">${r[0]}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td><span class="st ${cls}">${esc(r[3])}</span></td><td class="mono num">${esc(r[4])}</td></tr>`; }).join(''); }
+  function now(){ const d=new Date(); return [d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':'); }
+  function addLog(entry){ LOG.unshift([now(),...entry]); renderLog(); }
+  renderLog();
+
+  /* ---------------- ask ---------------- */
+  const thread=$('#thread');
+  function scroll(){ thread.scrollTop=thread.scrollHeight; }
+  function citesHtml(cs){ return cs&&cs.length?`<div class="cites">${cs.map(c=>`<span class="cite">${esc(c.doc)} · ${esc(c.loc)}<span class="fresh">${esc(c.fresh)}</span></span>`).join('')}</div>`:''; }
+  function addUser(text,via){ const m=document.createElement('div'); m.className='msg user'; m.innerHTML=`<div class="who">${esc(via||'You')}</div><div class="bubble">${esc(text)}</div>`; thread.appendChild(m); scroll(); return m; }
+  function addBrain(){ const m=document.createElement('div'); m.className='msg'; m.innerHTML=`<div class="who">Brain <span class="chip" style="padding:1px 7px">acknowledged</span></div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`; thread.appendChild(m); scroll(); return m; }
+  // Time-based reveal: progress is computed from elapsed wall-clock, not tick count,
+  // so a throttled tab (Chrome slows timers to 1/s when hidden) still finishes in ~1s.
+  function reveal(bubble,html,cb){
+    if(reduce){ bubble.innerHTML=html; scroll(); cb&&cb(); return; }
+    const tmp=document.createElement('div'); tmp.innerHTML=html; const full=tmp.textContent; const dur=Math.min(1400,400+full.length*2.2); const t0=Date.now();
+    bubble.innerHTML='';
+    const iv=setInterval(()=>{ const k=Math.min(1,(Date.now()-t0)/dur); if(k>=1){ clearInterval(iv); bubble.innerHTML=html; scroll(); cb&&cb(); return; } bubble.textContent=full.slice(0,Math.floor(full.length*k)); scroll(); },24);
+  }
+  function actionCard(a,logExtra){
+    const d=document.createElement('div'); d.className='action';
+    d.innerHTML=`<div class="ah"><strong>${esc(a.title)}</strong><span class="chip">Waiting for you</span></div><div class="kv">${a.kv.map(([k,v])=>`<span>${esc(k)}</span><span>${esc(v)}</span>`).join('')}</div><div class="af"><button type="button" class="btn primary sm">${esc(a.confirm)}</button><span class="small muted">Nothing leaves without your yes.</span></div>`;
+    d.querySelector('.btn.primary').addEventListener('click',()=>{ d.classList.add('done'); d.querySelector('.chip').textContent=a.done; d.querySelector('.chip').className='chip good'; d.querySelector('.af').innerHTML=`<span class="small" style="color:var(--good);font-weight:600">${esc(a.done)}</span>${a.extra?`<span class="small muted">· ${esc(a.extra)}</span>`:''}`; toast(a.done); addLog([logExtra[0],'Confirmed: '+a.title,'ok','0.4s']); });
+    return d;
+  }
+  let busy=false;
+  function run(script,userText,via){
+    if(busy) return; busy=true;
+    addUser(userText||script.prompt,via||script.via);
+    const m=addBrain(); const bubble=m.querySelector('.bubble');
+    setTimeout(()=>{
+      reveal(bubble,script.html,()=>{
+        bubble.insertAdjacentHTML('beforeend',citesHtml(script.cites));
+        if(script.action){ bubble.appendChild(actionCard(script.action,script.log)); }
+        if(script.progress){
+          const p=document.createElement('div'); p.style.marginTop='10px'; p.innerHTML=`<div class="small muted" style="margin-bottom:6px" id="pl">Fetching 1 of 4…</div><div class="progress"><i></i></div>`; bubble.appendChild(p);
+          const bar=p.querySelector('i'), lbl=p.querySelector('#pl'); const stages=[[25,'Saved 1 of 4 · /safety'],[50,'Saved 2 of 4 · /about/our-drivers'],[62,'Page 3 timed out · retrying (1 of 3)…'],[75,'Saved 3 of 4 · /careers/driver-pay'],[100,'Saved 4 of 4 · /news/2025-safety-award']];
+          let i=0; const iv=setInterval(()=>{ if(i>=stages.length){ clearInterval(iv); p.remove(); bubble.insertAdjacentHTML('beforeend',script.after+citesHtml(script.afterCites)); scroll(); addLog(script.log); busy=false; seedCaptures(true); return; } bar.style.width=stages[i][0]+'%'; lbl.textContent=stages[i][1]; i++; scroll(); },reduce?100:700);
+        } else { addLog(script.log); busy=false; }
+        scroll();
+      });
+    },reduce?50:650);
+  }
+  $('#prompts').innerHTML=SCRIPTS.map(s=>`<button type="button" class="prompt" data-key="${s.key}">${esc(s.prompt)}<span class="via">${esc(s.via)}</span></button>`).join('');
+  $('#prompts').addEventListener('click',e=>{ const b=e.target.closest('.prompt'); if(!b) return; run(SCRIPTS.find(s=>s.key===b.dataset.key)); });
+  $('#composer').addEventListener('submit',e=>{ e.preventDefault(); const q=$('#q').value.trim(); if(!q||busy) return; $('#q').value=''; const s=SCRIPTS.find(s=>s.match.test(q)); if(s){ run(s,q,'Text · desktop'); } else { busy=true; addUser(q,'Text · desktop'); const m=addBrain(); setTimeout(()=>{ reveal(m.querySelector('.bubble'),'<p>In the live system this runs against your CRM and every document in the index. This demo only knows the sample matters, so try one of the prompts on the left or ask about Hargrove, Whitfield, Callahan, or the new intake.</p>',()=>{ addLog(['Text · desktop',q.slice(0,60),'ok · no match in demo','0.9s']); busy=false; }); },reduce?50:500); } });
+  // voice
+  const mic=$('#micBtn'); let holdT=null;
+  function startHold(e){ e.preventDefault(); if(busy) return; mic.classList.add('live'); holdT=setTimeout(()=>{ endHold(); },900); }
+  function endHold(){ if(!mic.classList.contains('live')) return; clearTimeout(holdT); mic.classList.remove('live'); if(busy) return; busy=true;
+    const u=addUser('…','Voice · Meta glasses · I-55 N'); const b=u.querySelector('.bubble'); const words=VOICE.transcript.split(' '); const dur=reduce?50:2600; const t0=Date.now();
+    const iv=setInterval(()=>{ const k=Math.min(1,(Date.now()-t0)/dur); const i=Math.max(1,Math.floor(words.length*k)); b.textContent=words.slice(0,i).join(' '); scroll(); if(k>=1){ clearInterval(iv); busy=false; run({...VOICE,prompt:VOICE.transcript,via:'Voice'},null,null); thread.removeChild(thread.lastElementChild.previousElementSibling); } },40);
+  }
+  mic.addEventListener('pointerdown',startHold); mic.addEventListener('pointerup',endHold); mic.addEventListener('pointerleave',endHold);
+  mic.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startHold(e);} });
+  // opening message
+  (function(){ const m=document.createElement('div'); m.className='msg'; m.innerHTML=`<div class="who">Brain</div><div class="bubble"><p>Morning, Jesse. Three matters moved since yesterday: Delta Ridge produced the Boyd ELD log, Dr. Raman sent v2 of the Whitfield report, and a new intake came in from Hattiesburg 11 minutes ago (conflicts clear). Ask me anything, or hold the mic.</p></div>`; thread.appendChild(m); })();
+
+  /* ---------------- matters ---------------- */
+  function renderMatters(cur){
+    $('#mlist').innerHTML=MATTERS.map(m=>`<button type="button" class="mitem" data-id="${m.id}" aria-current="${m.id===cur}"><span class="n">${esc(m.name)}</span><span class="m"><span>${esc(m.type)}</span>${m.locked?'<span class="chip crit" style="padding:0 7px">Restricted</span>':`<span>· ${esc(m.office)}</span>`}</span></button>`).join('');
+    const m=MATTERS.find(x=>x.id===cur);
+    if(m.locked){ $('#mdetail').innerHTML=`<div class="card lock"><div class="chip crit">Restricted · Jesse and Kris only</div><h2>${esc(m.name)}</h2><p class="small muted" style="max-width:52ch">In this preview you’re signed in as Jesse, so you can open it. The target behavior denies other users without repeating the matter name; the review must verify which system supplies those permissions.</p><button type="button" class="btn" data-go="sovereignty">See the access target</button></div>`; return; }
+    $('#mdetail').innerHTML=`
+      <div class="card">
+        <div class="hd"><div><div class="eyebrow">${esc(m.type)}</div><h2 style="margin-top:4px">${esc(m.name)}</h2></div><span class="chip accent">${esc(m.stage)}</span></div>
+        <p class="small">${esc(m.summary)}</p>
+        <div class="formrow"><span>Court</span><span>${esc(m.court)}</span><span>Lead</span><span>${esc(m.lead)}</span><span>Office</span><span>${esc(m.office)}</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="hd"><h3>Documents</h3><span class="chip">${m.docs.length} groups · indexed</span></div><div class="doclist">${m.docs.map(d=>`<div class="doc"><span class="ic">${d[0]}</span><span>${esc(d[1])}</span><span class="meta">${esc(d[2])}</span></div>`).join('')}</div><p class="small muted">Every page is searchable. Ask a question and the answer points to the page.</p></div>
+        <div class="card"><div class="hd"><h3>Timeline &amp; deadlines</h3></div><div class="timeline">${m.timeline.map(t=>`<div class="tl"><div class="d">${esc(t[0])}</div><div>${esc(t[1])}</div></div>`).join('')}</div></div>
+      </div>`;
+  }
+  renderMatters('hargrove');
+  $('#mlist').addEventListener('click',e=>{ const b=e.target.closest('.mitem'); if(b) renderMatters(b.dataset.id); });
+
+  /* ---------------- captures ---------------- */
+  $('#capMatter').innerHTML=MATTERS.filter(m=>!m.locked).map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  const CAPS=[
+    {url:'deltaridgefreight.example/safety',matter:'Hargrove',state:'done',when:'Aug 28 · 12:33:04',hash:'9f3a…c1d2'},
+    {url:'deltaridgefreight.example/about/our-drivers',matter:'Hargrove',state:'done',when:'Aug 28 · 12:33:11',hash:'41be…77e0'},
+    {url:'deltaridgefreight.example/careers/driver-pay',matter:'Hargrove',state:'retry',when:'Aug 28 · 12:33:39',hash:'b80c…e94a'},
+    {url:'deltaridgefreight.example/news/2025-safety-award',matter:'Hargrove',state:'done',when:'Aug 28 · 12:33:46',hash:'d217…0f55'},
+    {url:'peachtreestorage.example/locations/midtown',matter:'Callahan',state:'done',when:'Aug 21 · 09:12:50',hash:'6ab3…21c9'},
+    {url:'magnoliaregional.example/quality/sepsis-program',matter:'Whitfield',state:'done',when:'Aug 14 · 16:40:02',hash:'e5f0…8b1a'}
+  ];
+  function stepsHtml(state){ const s=['Queued','Fetching','Screenshot','Hashed','Saved']; if(state==='done') return `<div class="steps">${s.map(x=>`<span class="step ok">${x}</span>`).join('')}</div>`; if(state==='retry') return `<div class="steps"><span class="step ok">Queued</span><span class="step retry">Fetching · retry 1/3</span><span class="step ok">Screenshot</span><span class="step ok">Hashed</span><span class="step ok">Saved</span></div>`; const idx=['queued','fetching','screenshot','hashed','saved'].indexOf(state); return `<div class="steps">${s.map((x,i)=>`<span class="step ${i<idx?'ok':i===idx?'on':''}">${x}</span>`).join('')}</div>`; }
+  function seedCaptures(){ $('#capBody').innerHTML=CAPS.map(c=>`<tr><td class="mono">${esc(c.url)}</td><td>${esc(c.matter)}</td><td>${stepsHtml(c.state)}</td><td>${c.state==='done'||c.state==='retry'?'<div class="shot" aria-label="Screenshot preview"></div>':'<span class="muted small">—</span>'}</td><td class="mono num">${esc(c.when||'—')}</td><td class="mono">${esc(c.hash||'—')}</td></tr>`).join(''); }
+  seedCaptures();
+  $('#runCapture').addEventListener('click',()=>{
+    const btn=$('#runCapture'); if(btn.disabled) return; btn.disabled=true;
+    const matter=MATTERS.find(m=>m.id===$('#capMatter').value); const short=matter.name.split(' ')[0];
+    const urls=$('#capUrls').value.split('\n').map(s=>s.trim()).filter(Boolean).map(u=>u.replace(/^https?:\/\//,''));
+    const jobs=urls.map(u=>({url:u,matter:short,state:'queued'})); CAPS.unshift(...jobs); seedCaptures();
+    const order=['fetching','screenshot','hashed','done']; let t=0;
+    jobs.forEach((j,ji)=>{ order.forEach((st,si)=>{ t+= (reduce?60:420); const delay=t+ji*(reduce?40:260); setTimeout(()=>{ if(ji===2&&st==='fetching'){ j.state='retry'; } else if(!(ji===2&&j.state==='retry'&&st!=='done')) j.state=st; if(st==='done'){ j.state= ji===2?'retry':'done'; const d=new Date(); j.when='Aug 28 · '+now(); j.hash=Math.random().toString(16).slice(2,6)+'…'+Math.random().toString(16).slice(2,6); } seedCaptures(); },delay); }); });
+    const total=t+jobs.length*(reduce?40:260)+100;
+    setTimeout(()=>{ toast(`${jobs.length} pages saved to ${short}`); addLog(['Text · desktop',`Capture ${jobs.length} URLs → ${short} file`,'ok · 1 retry','36s']); btn.disabled=false; btn.textContent='Capture again'; },total);
+  });
+
+  /* ---------------- intake ---------------- */
+  $('#intakeApprove').addEventListener('click',function(){ const n=$$('#view-intake .check input:checked').length; this.disabled=true; this.textContent=`Approved ${n} · sent`; toast(`${n} actions sent · logged to Prater file`); addLog(['Text · desktop',`Approve ${n} intake actions — Prater`,'ok','1.2s']); });
+
+  /* ---------------- sparkline ---------------- */
+  (function(){ const v=[31,44,38,52,47,40,12,9,46,51,49,55,43,41,10,8,50,58,47,52,44,39,11,7,48,53,57,49,46,42]; const W=600,H=56,max=64; const pts=v.map((y,i)=>[i*(W/(v.length-1)),H-4-(y/max)*(H-10)]); const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' '); const last=pts[pts.length-1]; $('#spark').innerHTML=`<path d="${path} L${W} ${H} L0 ${H} Z" fill="var(--accent-soft)"/><path d="${path}" fill="none" stroke="var(--accent)" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="3" fill="var(--accent)"/>`; })();
+})();
+</script>
+</body>
+</html>
