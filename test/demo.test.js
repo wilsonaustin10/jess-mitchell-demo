@@ -127,7 +127,7 @@ test('capture and intake approval reach their completed states', async (t) => {
   assert.equal(document.querySelectorAll('#capBody tr').length, initialCaptureCount + 4);
 
   document.querySelector('#intakeApprove').click();
-  assert.equal(document.querySelector('#intakeApprove').textContent, 'Approved 3 · sent');
+  assert.equal(document.querySelector('#intakeApprove').textContent, 'Sent 3 actions');
   assert.equal(document.querySelector('#intakeApprove').disabled, true);
   assert.deepEqual(scriptErrors, []);
 });
