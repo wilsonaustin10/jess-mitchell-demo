@@ -10,10 +10,22 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 Open <http://127.0.0.1:4173/mitchell-firm-brain.html>.
 
+## Build for deployment
+
+```bash
+npm run build
+python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
+```
+
+The production artifact is emitted to `dist/`, with the demo available at `/`
+and at `/mitchell-firm-brain.html`. `vercel.json` pins this build contract so
+Vercel does not depend on dashboard framework settings.
+
 ## Verify
 
 ```bash
 npm ci
+npm run build
 npm test
 npm run validate
 ```

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Interactive Mitchell Firm company-brain demo",
   "scripts": {
+    "build": "node scripts/build.mjs",
     "test": "node --test",
     "validate": "html-validate mitchell-firm-brain.html"
   },
