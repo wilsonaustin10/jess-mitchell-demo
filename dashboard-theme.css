@@ -87,43 +87,33 @@ h3 {
 }
 
 .brand {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 0 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
   align-items: center;
   padding: 0 8px;
 }
 
-.brandmark {
-  grid-row: span 2;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  color: var(--accent);
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 5px #f4f6f2, inset 0 0 0 7px var(--accent);
-}
-
-.brand .firm {
-  align-self: end;
-  font-family: var(--body);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.firm-logo {
+  display: block;
+  width: min(178px, 100%);
+  height: auto;
+  border: 1px solid rgba(18, 23, 19, 0.12);
+  border-radius: 14px;
+  background: #222222;
+  box-shadow: 0 8px 22px rgba(18, 23, 19, 0.1);
 }
 
 .brand .prod {
-  align-self: start;
+  color: var(--muted);
   font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .demo-label {
-  grid-column: 1 / -1;
-  margin-top: 13px;
+  margin-top: 1px;
 }
 
 .navlist {

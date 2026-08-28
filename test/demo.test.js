@@ -58,6 +58,21 @@ test('declares a real mobile viewport', (t) => {
   assert.equal(viewport.content, 'width=device-width, initial-scale=1');
 });
 
+test('shows the Mitchell Firm logo in the primary brand area', (t) => {
+  const { document } = openDemo(t);
+  const brand = document.querySelector('.brand');
+  const logo = document.querySelector('.brand img.firm-logo');
+
+  assert.ok(brand, 'the primary brand area should remain present');
+  assert.ok(logo, 'the supplied firm logo should anchor the sidebar');
+  assert.equal(logo.getAttribute('src'), 'assets/mitchell-firm-logo.png');
+  assert.equal(logo.getAttribute('alt'), 'The Mitchell Firm');
+  assert.equal(logo.getAttribute('width'), '338');
+  assert.equal(logo.getAttribute('height'), '197');
+  assert.equal(brand.querySelector('.prod')?.textContent.trim(), 'Company Brain');
+  assert.match(brand.querySelector('.demo-label')?.textContent ?? '', /sample matters/i);
+});
+
 test('opens on a Today dashboard with four operational summaries', (t) => {
   const { document, scriptErrors } = openDemo(t);
 

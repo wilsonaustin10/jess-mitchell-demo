@@ -19,13 +19,30 @@ const publicFiles = new Set([
   'index.html',
   'mitchell-firm-brain.html',
 ]);
+const publicDirectories = new Set(['assets']);
 const unexpectedEntries = (await readdir(outputDirectory, { withFileTypes: true }))
-  .filter((entry) => !entry.isFile() || !publicFiles.has(entry.name))
+  .filter((entry) => (
+    (!entry.isFile() || !publicFiles.has(entry.name))
+    && (!entry.isDirectory() || !publicDirectories.has(entry.name))
+  ))
   .map((entry) => entry.name);
 
 if (unexpectedEntries.length > 0) {
   throw new Error(
     `Refusing unexpected public output: ${unexpectedEntries.join(', ')}`,
+  );
+}
+
+const outputAssets = path.join(outputDirectory, 'assets');
+await mkdir(outputAssets, { recursive: true });
+const publicAssets = new Set(['mitchell-firm-logo.png']);
+const unexpectedAssets = (await readdir(outputAssets, { withFileTypes: true }))
+  .filter((entry) => !entry.isFile() || !publicAssets.has(entry.name))
+  .map((entry) => entry.name);
+
+if (unexpectedAssets.length > 0) {
+  throw new Error(
+    `Refusing unexpected public asset: ${unexpectedAssets.join(', ')}`,
   );
 }
 
@@ -41,6 +58,10 @@ await Promise.all([
   copyFile(
     path.join(projectRoot, 'dashboard-theme.css'),
     path.join(outputDirectory, 'dashboard-theme.css'),
+  ),
+  copyFile(
+    path.join(projectRoot, 'assets', 'mitchell-firm-logo.png'),
+    path.join(outputAssets, 'mitchell-firm-logo.png'),
   ),
 ]);
 
