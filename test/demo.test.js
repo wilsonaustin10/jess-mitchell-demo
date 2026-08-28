@@ -99,6 +99,19 @@ test('dashboard command action opens the existing Ask workflow', (t) => {
   assert.equal(document.querySelector('#viewTitle').textContent, 'Ask the brain');
 });
 
+test('labels the capture workflow as Research Agent', (t) => {
+  const { document } = openDemo(t);
+  const researchAgentNav = document.querySelector('[data-view="captures"]');
+
+  assert.match(researchAgentNav.textContent.trim(), /^Research Agent/);
+  assert.doesNotMatch(researchAgentNav.textContent, /web capture/i);
+
+  researchAgentNav.click();
+
+  assert.equal(document.querySelector('#viewTitle').textContent, 'Research Agent');
+  assert.equal(document.title, 'Research Agent · Mitchell Firm Brain');
+});
+
 test('all existing workflow destinations remain navigable', (t) => {
   const { document } = openDemo(t);
   const destinations = [

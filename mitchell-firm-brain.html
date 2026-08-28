@@ -254,7 +254,7 @@
       <button type="button" class="navbtn" data-view="dashboard" aria-current="page"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Today <span class="k">1</span></button>
       <button type="button" class="navbtn" data-view="ask"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3a7 7 0 0 0-7 7v2a7 7 0 0 0 7 7h1l4 2v-3.1A7 7 0 0 0 19 13v-3a7 7 0 0 0-7-7Z"/><path d="M8.5 10.5h7M8.5 13.5h4"/></svg>Ask the brain <span class="k">2</span></button>
       <button type="button" class="navbtn" data-view="matters"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h6l2 2h8v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7Z"/><path d="M4 7V5a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v2"/></svg>Matters <span class="k">3</span></button>
-      <button type="button" class="navbtn" data-view="captures"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 15 3-3 3 3 2-2 3 3M8 9h.01"/></svg>Web capture <span class="k">4</span></button>
+      <button type="button" class="navbtn" data-view="captures"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 15 3-3 3 3 2-2 3 3M8 9h.01"/></svg>Research Agent <span class="k">4</span></button>
       <button type="button" class="navbtn" data-view="intake"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>New intake <span class="k">5</span></button>
       <div class="navgroup">Control</div>
       <button type="button" class="navbtn" data-view="reliability"><svg class="navico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-5"/></svg>Reliability <span class="k">6</span></button>
@@ -610,7 +610,7 @@ https://deltaridgefreight.example/news/2025-safety-award</textarea>
             <ul>
               <li><strong>Language models</strong> — target contract: send only the passage needed, disable retention and training where supported, and keep providers replaceable.</li>
               <li><strong>Email</strong> — target workflow: use the firm’s Microsoft 365 authorization and log approved sends to the matter.</li>
-              <li><strong>Web capture</strong> — target boundary: fetch only public pages without disclosing matter context in the request.</li>
+              <li><strong>Research Agent</strong> — target boundary: fetch only public pages without disclosing matter context in the request.</li>
               <li><strong>Supio</strong> — stays exactly where it is for document review. The brain can point to it, never replaces it.</li>
             </ul>
           </div>
@@ -654,7 +654,7 @@ https://deltaridgefreight.example/news/2025-safety-award</textarea>
         </div>
         <div class="phases">
           <div class="ph"><span class="w">Step 1 · Audit</span><h3>Read the build</h3><ul><li>Walk Josh’s handoff files and code with him</li><li>Map integrations, runtime, data, accounts, and access</li><li>Collect the commands that fail most often</li><li>Document risks, scope options, and an informed estimate</li></ul></div>
-          <div class="ph"><span class="w">Step 2 · Stabilize</span><h3>Fix the critical path</h3><ul><li>Prioritize the failures you feel in daily litigation</li><li>Add appropriate recovery, logging, and alerts</li><li>Replay real commands before shipping changes</li><li>Start with web capture if the review confirms it as the top issue</li></ul></div>
+          <div class="ph"><span class="w">Step 2 · Stabilize</span><h3>Fix the critical path</h3><ul><li>Prioritize the failures you feel in daily litigation</li><li>Add appropriate recovery, logging, and alerts</li><li>Replay real commands before shipping changes</li><li>Start with the Research Agent if the review confirms it as the top issue</li></ul></div>
           <div class="ph"><span class="w">Step 3 · Maintain</span><h3>Keep it dependable</h3><ul><li>Run the system with agreed reliability evidence visible</li><li>Record the handoff and operating procedures</li><li>Place ownership and support responsibilities in writing</li><li>Give you one accountable support path</li></ul></div>
           <div class="ph"><span class="w">Step 4 · Extend</span><h3>Add what earns priority</h3><ul><li>Evaluate intake auto-briefing after stabilization</li><li>Rank “what’s due this week” and other matter workflows</li><li>Extend voice capture from your actual habits</li><li>Scope each addition against measurable value</li></ul></div>
         </div>
@@ -720,14 +720,14 @@ https://deltaridgefreight.example/news/2025-safety-award</textarea>
     {key:'hours',via:'Voice · from the car',prompt:'Pull up everything on the Delta Ridge driver’s hours the day of the wreck.',
       match:/hours|driver|boyd|eld|dispatch/i,
       html:'<p>Terry Boyd logged on at <strong>10:55 AM</strong> on March 11. The collision was at <strong>9:52 PM</strong> — hour 10:57 of driving, hour 11 on duty. The ELD shows one 30-minute break at 3:10 PM and no other off-duty time.</p><ul><li>Dispatch texted him at <strong>9:40 PM</strong>: “can u grab the Jackson load after this one.” He replied “ya” at 9:41.</li><li>In deposition he said he “felt fine” but agreed he had not taken the second break policy required (Boyd Dep. 112:4–113:19).</li><li>Delta Ridge’s website says drivers are “never pushed past safe hours” — captured today.</li></ul><p>Want me to add this as a section in the Boyd cross outline?</p>',
-      cites:[cite('ELD log, T. Boyd','Mar 11, rows 1–19','produced Jun 2026'),cite('Dispatch texts','p. 6','produced Jun 2026'),cite('Boyd deposition','112:4–113:19','Jul 22, 2026'),cite('Web capture · /safety','Aug 28, 2026','today')],
+      cites:[cite('ELD log, T. Boyd','Mar 11, rows 1–19','produced Jun 2026'),cite('Dispatch texts','p. 6','produced Jun 2026'),cite('Boyd deposition','112:4–113:19','Jul 22, 2026'),cite('Research Agent · /safety','Aug 28, 2026','today')],
       log:['Voice · Android','Summarize Boyd hours-of-service — Hargrove','ok','2.6s']},
     {key:'capture',via:'Voice · from the car',prompt:'Capture these four pages from Delta Ridge’s website into the Hargrove file.',
       match:/capture|screenshot|website|pages|links|urls/i,
-      html:'<p>Got it. Four links queued for the <strong>Hargrove</strong> file. I’ll screenshot each one full-length, hash it, and file it under Web captures.</p>',
+      html:'<p>Got it. Four links queued for the <strong>Hargrove</strong> file. I’ll screenshot each one full-length, hash it, and file it under Research Agent.</p>',
       progress:true,
       after:'<p>Done — <strong>4 of 4 saved</strong>. Page 3 (driver-pay) timed out once and succeeded on retry. Each capture has the URL and timestamp in the footer and a SHA-256 hash in the file record. They’re searchable now — ask about the driver’s hours and the /safety page shows up as a source.</p>',
-      afterCites:[cite('Hargrove · Web captures','4 files','just now')],
+      afterCites:[cite('Hargrove · Research Agent','4 files','just now')],
       log:['Voice · Android','Capture 4 URLs → Hargrove file','ok · 1 retry','38s']},
     {key:'email',via:'Text · desktop',prompt:'Email Kris the Whitfield expert report and ask her to flag the lactate timeline by Thursday.',
       match:/email|kris|raman|expert report|lactate/i,
@@ -763,7 +763,7 @@ https://deltaridgefreight.example/news/2025-safety-award</textarea>
     log:['Voice · Meta glasses','Voice memo → closing notes + reminder — Hargrove','ok','4.8s']};
 
   /* ---------------- nav ---------------- */
-  const TITLES={dashboard:['Today','Continuity first: what must be reviewed, what needs you, and what the sample brain can do.'],ask:['Ask the brain','Voice or text. Every answer cites the document it came from.'],matters:['Matters','What the brain can see, and how it is organized.'],captures:['Web capture','Preview the evidence workflow; validate today’s implementation during review.'],intake:['New intake','A web form became a briefing before anyone read it.'],reliability:['Reliability','The service standard to validate and enforce after the technical review.'],sovereignty:['Data & access','A firm-controlled target model, finalized after the current system is mapped.'],plan:['Cutover plan','Audit → stabilize → maintain → extend. Scope and price follow the review.']};
+  const TITLES={dashboard:['Today','Continuity first: what must be reviewed, what needs you, and what the sample brain can do.'],ask:['Ask the brain','Voice or text. Every answer cites the document it came from.'],matters:['Matters','What the brain can see, and how it is organized.'],captures:['Research Agent','Preview the evidence workflow; validate today’s implementation during review.'],intake:['New intake','A web form became a briefing before anyone read it.'],reliability:['Reliability','The service standard to validate and enforce after the technical review.'],sovereignty:['Data & access','A firm-controlled target model, finalized after the current system is mapped.'],plan:['Cutover plan','Audit → stabilize → maintain → extend. Scope and price follow the review.']};
   function go(view){
     $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));
     $$('.navbtn').forEach(b=>{ if(b.dataset.view===view) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
